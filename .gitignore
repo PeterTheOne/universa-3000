@@ -25,6 +25,9 @@ local.properties
 # PDT-specific
 .buildpath
 
+# Java
+*.class
+
 # Cogaen Engine
 Cogaen Box2D
 Cogaen Core

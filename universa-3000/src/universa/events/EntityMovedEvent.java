@@ -2,17 +2,18 @@ package universa.events;
 
 import org.cogaen.event.Event;
 import org.cogaen.event.EventType;
-import org.cogaen.motion.Vector;
+
+import universa.Vector2f;
 
 public class EntityMovedEvent extends Event {
 	
 	public static EventType TYPE = new EventType("EntityMoved");
 	
 	private String name;
-	private Vector pos;
-	private Vector vel;
+	private Vector2f pos;
+	private Vector2f vel;
 
-	public EntityMovedEvent(String name, Vector pos, Vector vel) {
+	public EntityMovedEvent(String name, Vector2f pos, Vector2f vel) {
 		this.name = name;
 		this.pos = pos;
 		this.vel = vel;
@@ -22,11 +23,11 @@ public class EntityMovedEvent extends Event {
 		return this.name;
 	}
 	
-	public Vector getPos() {
+	public Vector2f getPos() {
 		return this.pos;
 	}
 	
-	public Vector getVel() {
+	public Vector2f getVel() {
 		return this.vel;
 	}
 	

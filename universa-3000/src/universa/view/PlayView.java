@@ -13,10 +13,10 @@ import org.cogaen.java2d.Camera;
 import org.cogaen.java2d.CircleVisual;
 import org.cogaen.java2d.SceneManager;
 import org.cogaen.java2d.SceneNode;
-import org.cogaen.motion.Vector;
 import org.cogaen.view.AbstractView;
 
 import universa.Planetoid;
+import universa.Vector2f;
 import universa.events.EntityMovedEvent;
 
 public class PlayView extends AbstractView implements EventListener {
@@ -35,7 +35,7 @@ public class PlayView extends AbstractView implements EventListener {
 
 		Camera cam = this.scnMngr.createCamera();
 		// 15 = wie viele meter will ich sehn..
-		cam.setZoom(this.scnMngr.getScreen().getWidth() / 27.5);
+		cam.setZoom(this.scnMngr.getScreen().getWidth() / 60);
 
 		EventManager evtMngr = EventManager.getInstance(getCore());
 		evtMngr.addListener(this, EntityCreatedEvent.TYPE);
@@ -88,13 +88,13 @@ public class PlayView extends AbstractView implements EventListener {
 
 	private void handleEntityMovedEvent(EntityMovedEvent event) {
 		SceneNode node = this.scnMngr.getSceneNode(event.getName());
-		Vector pos = event.getPos();
+		Vector2f pos = event.getPos();
 		//setPose? rotation?
-		node.setPose(pos.x, pos.y, 0);
+		node.setPose(pos.getX(), pos.getY(), 0);
 		
 		//TODO: no node.getChild(String name) ?		
 		SceneNode targetNode = this.scnMngr.getSceneNode(event.getName() + "Target");
-		Vector vel = event.getVel();
-		targetNode.setPose(vel.x * 100, vel.y * 100, 0);
+		Vector2f vel = event.getVel();
+		targetNode.setPose(vel.getX(), vel.getY(), 0);
 	}
 }

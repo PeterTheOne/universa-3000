@@ -4,6 +4,7 @@ import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
 import org.cogaen.core.Core;
+import org.cogaen.event.EventManager;
 import org.cogaen.input.InputManager;
 import org.cogaen.java2d.SceneManager;
 import org.cogaen.java2d.Screen;
@@ -18,7 +19,7 @@ import universa.states.PlayState;
 public class App {
 
 	public static void main(String[] args) throws InterruptedException {
-		Screen screen = new WindowedScreen(1000, 700);
+		Screen screen = new WindowedScreen(500, 500);
 		JFrame frame = new JFrame("Game States");
 		frame.add(screen.getComponent());
 		frame.setResizable(false);
@@ -34,10 +35,17 @@ public class App {
 	private Core core;
 
 	public App(Screen screen) {
+		//TODO: why 3times Time service in documentation
 		this.core = Core.createCoreWithStandardServices(LoggingService.DEBUG);
 		this.core.installService(new SceneManager(screen));
 		this.core.installService(new InputManager(screen.getComponent()));
 		this.core.installService(new ResourceManager());
+		this.core.installService(new PlanetoidMotionManager());
+
+		//TODO: set fastEventDispatch false?
+		EventManager.getInstance(this.core).setFastEventDispatch(true);
+		
+		LoggingService.getInstance(this.core).setLevel(LoggingService.INFO);
 
 		initializeGameStates();
 	}
@@ -60,6 +68,7 @@ public class App {
 
 		while (true) {
 			clock.tick();
+			//LoggingService.getInstance(this.core).logInfo("GameApp", "fps: " + 1 / clock.getAvgDelta());
 			this.core.update(clock.getDelta());
 			scnMngr.renderScene();
 			Thread.sleep(1);
