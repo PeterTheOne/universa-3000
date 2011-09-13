@@ -68,20 +68,16 @@ public class MotionManager implements UpdateableService {
 	private void doCollisionTest() {
 		collisionGroups.clear();
 		
-		String debug = "";
-		
 		for (int i = 0; i < this.planetoids.size(); ++i) {
 			Planetoid p1 = this.planetoids.get(i);
 			for (int j = i + 1; j < this.planetoids.size(); ++j) {
 				Planetoid p2 = this.planetoids.get(j);
 				
-				if (p1.isColliding(p2) && !p1.equals(p2)) {
-					//newCollision(p1.getName(), p2.getName());
-					
-
+				if (p1.isColliding(p2)) {
 					ArrayList<String> p1FoundGroup = null;
 					ArrayList<String> p2FoundGroup = null;
 					for (ArrayList<String> group : collisionGroups) {
+						// check p1 or p2 has already collided 
 						for (String name : group) {
 							if (name.equals(p1.getName())) {
 								p1FoundGroup = group;
@@ -93,98 +89,42 @@ public class MotionManager implements UpdateableService {
 					}
 					
 					if (p1FoundGroup != null && p2FoundGroup != null) {
-						if (!p1FoundGroup.equals(p2FoundGroup)) {
-							ArrayList<String> newGroup = new ArrayList<String>();
-							for (String name : p1FoundGroup) {
-								newGroup.add(name);
-							}
-							for (String name : p2FoundGroup) {
-								newGroup.add(name);
-							}
-							this.collisionGroups.remove(p1FoundGroup);
-							this.collisionGroups.remove(p2FoundGroup);
-							this.collisionGroups.add(newGroup);
-							debug += collisionGroups + "\n";
-						} else {
-							//do nothing
+						// merge groups
+						if (p1FoundGroup.equals(p2FoundGroup)) {
+							continue;
 						}
+						ArrayList<String> newGroup = new ArrayList<String>();
+						for (String name : p1FoundGroup) {
+							newGroup.add(name);
+						}
+						for (String name : p2FoundGroup) {
+							newGroup.add(name);
+						}
+						this.collisionGroups.remove(p1FoundGroup);
+						this.collisionGroups.remove(p2FoundGroup);
+						this.collisionGroups.add(newGroup);
 					} else if (p1FoundGroup != null && p2FoundGroup == null) {
+						//add to group
 						p1FoundGroup.add(p2.getName());
-						debug += collisionGroups + "\n";
 					} else if (p1FoundGroup == null && p2FoundGroup != null) {
+						//add to group
 						p2FoundGroup.add(p1.getName());
-						debug += collisionGroups + "\n";
 					} else if (p1FoundGroup == null && p2FoundGroup == null) {
+						// create new groupe
 						ArrayList<String> newGroup = new ArrayList<String>();
 						newGroup.add(p1.getName());
 						newGroup.add(p2.getName());
 						this.collisionGroups.add(newGroup);
-						debug += collisionGroups + "\n";
 					}
 				}
 				
 			}
 		}
 		
-		ArrayList<String> duplicates = new ArrayList<String>();
-		boolean found2 = false;
-		for (ArrayList<String> group : collisionGroups) {
-			for (String name : group) {
-				boolean found = false;
-				for (String dup : duplicates) {
-					if (name.equals(dup)) {
-						found = true;
-						found2 = true;
-						break;
-						}
-				}
-				if (found) {
-					LoggingService.getInstance(this.core)
-							.logError("PlanetoidMotionManager", "duplicate: " + name);
-				} else {
-					duplicates.add(name);
-				}
-			}
-		}
-		if (found2) {
-			LoggingService.getInstance(this.core)
-			.logError("PlanetoidMotionManager", "debug: " + debug);
-			LoggingService.getInstance(this.core)
-			.logError("PlanetoidMotionManager", "collisionGroups final: " + collisionGroups);
-		}
-		
 		for (ArrayList<String> group : collisionGroups) {
 			EventManager.getInstance(this.core).enqueueEvent(new CollisionEvent(group));
 		}
 	}
-		
-	/*private void newCollision(String key, String value) {
-		for (ArrayList<String> group : collisionGroups) {
-			boolean foundKey = false;
-			boolean foundValue = false;
-			for (String name : group) {
-				if (name.equals(key)) {
-					foundKey = true;
-				}
-				if (name.equals(value)) {
-					foundValue = true;
-				}
-			}
-			if (foundKey && !foundValue) {
-				group.add(value);
-			}
-			if (!foundKey && foundValue) {
-				group.add(key);
-			}
-			if (foundKey || foundValue) {
-				return;
-			}
-		}
-		ArrayList<String> newGroup = new ArrayList<String>();
-		newGroup.add(key);
-		newGroup.add(value);
-		this.collisionGroups.add(newGroup);
-	}*/
 
 	@Override
 	public String getName() {
