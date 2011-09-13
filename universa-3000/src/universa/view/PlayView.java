@@ -131,7 +131,7 @@ public class PlayView extends AbstractView implements EventListener {
 			circle.setColor(Color.WHITE);			
 			scnNode.addVisual(circle);
 			SceneNode targetNode = this.scnMngr.createSceneNode(event.getEntityName() + "Target");
-			CircleVisual targetCircle = this.scnMngr.createCircleVisual(planetoid.getRadius() / 10d);
+			CircleVisual targetCircle = this.scnMngr.createCircleVisual(planetoid.getRadius() / 5d);
 			targetCircle.setColor(Color.BLUE);
 			targetNode.addVisual(targetCircle);
 			scnNode.addChild(targetNode);
@@ -156,7 +156,7 @@ public class PlayView extends AbstractView implements EventListener {
 		
 		//TODO: no node.getChild(String name) ?		
 		SceneNode targetNode = this.scnMngr.getSceneNode(event.getName() + "Target");
-		Vector2f vel = event.getVel();
+		Vector2f vel = event.getVel().div(event.getMass());
 		targetNode.setPose(vel.getX(), vel.getY(), 0);
 	}
 

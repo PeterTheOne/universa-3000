@@ -58,7 +58,9 @@ public class MotionManager implements UpdateableService {
 		double dt = this.timer.getDeltaTime();
 		for (Planetoid planetoid : this.planetoids) {
 			planetoid.update(dt);
-			this.evtMngr.enqueueEvent(new EntityMovedEvent(planetoid.getName(), planetoid.getPos(), planetoid.getVel()));
+			EntityMovedEvent event = new EntityMovedEvent(planetoid.getName(), 
+					planetoid.getPos(), planetoid.getVel(), planetoid.getMass());
+			this.evtMngr.enqueueEvent(event);
 		}
 		doCollisionTest();
 	}

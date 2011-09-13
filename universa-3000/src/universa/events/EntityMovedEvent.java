@@ -13,11 +13,13 @@ public class EntityMovedEvent extends Event {
 	private String name;
 	private Vector2f pos;
 	private Vector2f vel;
+	private double mass;
 
-	public EntityMovedEvent(String name, Vector2f pos, Vector2f vel) {
+	public EntityMovedEvent(String name, Vector2f pos, Vector2f vel, double mass) {
 		this.name = name;
 		this.pos = pos;
 		this.vel = vel;
+		this.mass = mass;
 	}
 	
 	public String getName() {
@@ -30,6 +32,10 @@ public class EntityMovedEvent extends Event {
 	
 	public Vector2f getVel() {
 		return this.vel;
+	}
+	
+	public double getMass() {
+		return this.mass;
 	}
 	
 	@Override
