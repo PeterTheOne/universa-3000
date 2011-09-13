@@ -3,6 +3,10 @@ package universa;
 import org.cogaen.core.Core;
 import org.cogaen.entity.Entity;
 import org.cogaen.entity.EntityManager;
+import org.cogaen.event.Event;
+import org.cogaen.event.EventManager;
+import org.cogaen.event.EventType;
+import org.cogaen.event.SimpleEvent;
 import org.cogaen.name.NameService;
 
 import cogaenfix.Vector2f;

@@ -2,6 +2,10 @@ universa-3000
 
 universa-3000 is a gravitation simulation.
 
+Controls:
+drag mouse to drag view
+'n' and 'm' keys to zoom
+
 Created by:
 Programmer:	Peter Grassberger (PeterTheOne)
 Advisor:	Julian Grassberger

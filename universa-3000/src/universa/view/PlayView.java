@@ -1,6 +1,7 @@
 package universa.view;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -16,8 +17,11 @@ import org.cogaen.input.KeyPressedEvent;
 import org.cogaen.input.MousePressedEvent;
 import org.cogaen.java2d.Camera;
 import org.cogaen.java2d.CircleVisual;
+import org.cogaen.java2d.Overlay;
 import org.cogaen.java2d.SceneManager;
 import org.cogaen.java2d.SceneNode;
+import org.cogaen.java2d.Screen;
+import org.cogaen.java2d.TextVisual;
 import org.cogaen.view.AbstractView;
 
 import cogaenfix.MouseDraggedEvent;
@@ -30,13 +34,25 @@ import universa.events.EntityMovedEvent;
 public class PlayView extends AbstractView implements EventListener {
 
 	private SceneManager scnMngr;
+	private Dimension scrDim;
 	private Camera cam;
 	private Point prevMousePos;
 	private int buttonPressed;
+	private Overlay planetoidCountOverlay;
+	private TextVisual planetoidCount;
+	private Overlay planetoidMassOverlay;
+	private TextVisual planetoidMass;
+	private Overlay zoomOverlay;
+	private TextVisual zoom;
 
 	public PlayView(Core core) {
 		super(core);
 		this.scnMngr = SceneManager.getInstance(core);
+		
+		Screen screen = scnMngr.getScreen();
+		int width = screen.getWidth();
+		int height = screen.getHeight();
+		this.scrDim = new Dimension(width, height);
 	}
 
 	@Override
@@ -58,6 +74,24 @@ public class PlayView extends AbstractView implements EventListener {
 		
 		this.prevMousePos = new Point();
 		this.buttonPressed = MouseEvent.NOBUTTON;
+
+		this.zoomOverlay = this.scnMngr.createOverlay();
+		this.zoomOverlay.setPosition(20, this.scrDim.height - 60);
+		this.zoom = this.scnMngr.createTextVisual("Zoom: " + this.cam.getZoom());
+		this.zoom.setColor(Color.WHITE);
+		this.zoomOverlay.addVisual(this.zoom);
+
+		this.planetoidCountOverlay = this.scnMngr.createOverlay();
+		this.planetoidCountOverlay.setPosition(20, this.scrDim.height - 40);
+		this.planetoidCount = this.scnMngr.createTextVisual("Planetoid Count: ");
+		this.planetoidCount.setColor(Color.WHITE);
+		this.planetoidCountOverlay.addVisual(this.planetoidCount);
+		
+		this.planetoidMassOverlay = this.scnMngr.createOverlay();
+		this.planetoidMassOverlay.setPosition(20, this.scrDim.height - 20);
+		this.planetoidMass = this.scnMngr.createTextVisual("Planetoid Mass: ");
+		this.planetoidMass.setColor(Color.WHITE);
+		this.planetoidMassOverlay.addVisual(this.planetoidMass);
 	}
 
 	@Override
@@ -102,11 +136,16 @@ public class PlayView extends AbstractView implements EventListener {
 			targetNode.addVisual(targetCircle);
 			scnNode.addChild(targetNode);
 			this.scnMngr.getRootSceneNode().addChild(scnNode);
+
+			this.planetoidCount.setText("Planetoid Count: " + Planetoid.TOTAL_COUNT);
+			this.planetoidMass.setText("Planetoid Mass: " + Planetoid.TOTAL_MASS);
 		}
 	}
 
 	private void handleEntityDestroyedEvent(EntityDestroyedEvent event) {
 		this.scnMngr.destroySceneNode(event.getEntityName());
+		this.planetoidCount.setText("Planetoid Count: " + Planetoid.TOTAL_COUNT);
+		this.planetoidMass.setText("Planetoid Mass: " + Planetoid.TOTAL_MASS);
 	}
 
 	private void handleEntityMovedEvent(EntityMovedEvent event) {
@@ -151,10 +190,12 @@ public class PlayView extends AbstractView implements EventListener {
 	private void zoomIn() {
 		double zoom = this.cam.getZoom();
 		this.cam.setZoom(zoom * 2d);
+		this.zoom.setText("Zoom: " + this.cam.getZoom());
 	}
 
 	private void zoomOut() {
 		double zoom = this.cam.getZoom();
 		this.cam.setZoom(zoom / 2d);
+		this.zoom.setText("Zoom: " + this.cam.getZoom());
 	}
 }
