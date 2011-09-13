@@ -5,6 +5,7 @@ universa-3000 is a gravitation simulation.
 Controls:
 drag mouse to drag view
 'n' and 'm' keys to zoom
+'v' and 'b' keys change the gamespeed
 
 Created by:
 Programmer:	Peter Grassberger (PeterTheOne)

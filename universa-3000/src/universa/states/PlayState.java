@@ -22,6 +22,9 @@ import universa.view.PlayView;
 public class PlayState implements GameState, EventListener {
 
 	public static String NAME = "Play";
+	
+	private static double EARTH_MASS = 5.9736 * Math.pow(10, 24);
+	private static double SUN_MASS = 1.9891 * Math.pow(10, 30);
 
 	private Core core;
 	private View view;
@@ -43,18 +46,22 @@ public class PlayState implements GameState, EventListener {
 		ResourceManager.getInstance(this.core).loadGroup(NAME);
 		this.view.engage();
 
+		Planetoid sun = new Planetoid(this.core, new Vector2f(), 1000 * EARTH_MASS);
+		EntityManager.getInstance(this.core).addEntity(sun);
 		for (int i = 0; i < 200; i++) {
 			//TODO: bug when vector stays the same
-			double rand1 = Math.random();
+			double rand1 = (Math.random() * 2) - 1;
 			double rand2;
+			double d;
 			do {
-				rand2 = Math.random();
-			} while (1 < rand1 * rand1 + rand2 * rand2);
-			Vector2f pos = new Vector2f(Math.random(), Math.random());
-			pos = pos.multi(80d).sub(40d);
-			Planetoid planetoid = new Planetoid(this.core, pos, 10 / Math.pow(pos.length(), 2));
+				rand2 = (Math.random() * 2) - 1;
+				d = rand1 * rand1 + rand2 * rand2;
+			} while (1 < d && 0.75d > d);
+			Vector2f pos = new Vector2f(rand1, rand2);
+			pos = pos.multi(100000000000d)/*.sub(50000000000d)*/;
+			Planetoid planetoid = new Planetoid(this.core, pos, EARTH_MASS);
 			Vector2f vel = new Vector2f(pos.normalize().getY(), -pos.normalize().getX());
-			vel = vel.multi(60d / pos.length());
+			vel = vel.multi(100000000000000000000d / (pos.length() * 2));
 			planetoid.setVel(vel);
 			EntityManager.getInstance(this.core).addEntity(planetoid);
 		}

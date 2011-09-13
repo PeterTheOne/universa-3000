@@ -30,6 +30,7 @@ import cogaenfix.Vector2f;
 
 import universa.Planetoid;
 import universa.events.EntityMovedEvent;
+import universa.events.GamespeedChangedEvent;
 
 public class PlayView extends AbstractView implements EventListener {
 
@@ -38,12 +39,15 @@ public class PlayView extends AbstractView implements EventListener {
 	private Camera cam;
 	private Point prevMousePos;
 	private int buttonPressed;
+	
+	private Overlay speedOverlay;
+	private TextVisual speed;
+	private Overlay zoomOverlay;
+	private TextVisual zoom;
 	private Overlay planetoidCountOverlay;
 	private TextVisual planetoidCount;
 	private Overlay planetoidMassOverlay;
 	private TextVisual planetoidMass;
-	private Overlay zoomOverlay;
-	private TextVisual zoom;
 
 	public PlayView(Core core) {
 		super(core);
@@ -61,7 +65,7 @@ public class PlayView extends AbstractView implements EventListener {
 		this.scnMngr.setBackgroundColor(Color.black);
 
 		this.cam = this.scnMngr.createCamera();
-		this.cam.setZoom(this.scnMngr.getScreen().getWidth() / 100);
+		this.cam.setZoom(this.scnMngr.getScreen().getWidth() / 200000000000d);
 
 		EventManager evtMngr = EventManager.getInstance(getCore());
 		evtMngr.addListener(this, EntityCreatedEvent.TYPE);
@@ -71,9 +75,16 @@ public class PlayView extends AbstractView implements EventListener {
 		evtMngr.addListener(this, MouseDraggedEvent.TYPE);
 		evtMngr.addListener(this, MouseReleasedEvent.TYPE);
 		evtMngr.addListener(this, KeyPressedEvent.TYPE);
+		evtMngr.addListener(this, GamespeedChangedEvent.TYPE);
 		
 		this.prevMousePos = new Point();
 		this.buttonPressed = MouseEvent.NOBUTTON;
+
+		this.speedOverlay = this.scnMngr.createOverlay();
+		this.speedOverlay.setPosition(20, this.scrDim.height - 80);
+		this.speed = this.scnMngr.createTextVisual("Gamespeed: " + 1d);
+		this.speed.setColor(Color.WHITE);
+		this.speedOverlay.addVisual(this.speed);
 
 		this.zoomOverlay = this.scnMngr.createOverlay();
 		this.zoomOverlay.setPosition(20, this.scrDim.height - 60);
@@ -119,6 +130,8 @@ public class PlayView extends AbstractView implements EventListener {
 			handleMouseDraggedEvent((MouseDraggedEvent) event);
 		} else if (event.isOfType(KeyPressedEvent.TYPE)) {
 			handleKeyPressedEvent((KeyPressedEvent) event);
+		} else if (event.isOfType(GamespeedChangedEvent.TYPE)) {
+			handleGamespeedChangedEvent((GamespeedChangedEvent) event);
 		}
 	}
 
@@ -197,5 +210,9 @@ public class PlayView extends AbstractView implements EventListener {
 		double zoom = this.cam.getZoom();
 		this.cam.setZoom(zoom / 2d);
 		this.zoom.setText("Zoom: " + this.cam.getZoom());
+	}
+
+	private void handleGamespeedChangedEvent(GamespeedChangedEvent event) {
+		this.speed.setText("Gamespeed: " + event.getGamespeed());
 	}
 }

@@ -82,6 +82,7 @@ public class Planetoid extends Entity {
 	}
 
 	public void update(double dt) {
+		Vector2f acc = new Vector2f();
 		EntityManager entMngr = EntityManager.getInstance(getCore());
 		for (int i = 0; i < entMngr.getNumEntities(); i++) {
 			Entity entity = entMngr.getEntity(i);
@@ -93,13 +94,13 @@ public class Planetoid extends Entity {
 					distance = Double.MIN_VALUE;
 				}
 				ab.normalize();
-				double force = 10 * this.mass * planetoid.getMass() / Math.pow(distance, 2);
-				this.vel = this.vel.add(ab.multi(force));
+				double force = G * this.mass * planetoid.getMass() / Math.pow(distance, 2);
+				acc = acc.add(ab.multi(force).div(this.mass));
 			}
 		}
 		
-		//Inertia & dt
-		this.pos = this.pos.add(this.vel.multi(dt).div(this.mass));
+		this.vel = this.vel.add(acc.multi(dt));
+		this.pos = this.pos.add(this.vel.multi(dt));
 	}
 
 	public boolean isColliding(Planetoid p2) {

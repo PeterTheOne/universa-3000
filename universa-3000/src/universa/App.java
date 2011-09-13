@@ -1,10 +1,15 @@
 package universa;
 
+import java.awt.event.KeyEvent;
+
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
 import org.cogaen.core.Core;
+import org.cogaen.event.Event;
+import org.cogaen.event.EventListener;
 import org.cogaen.event.EventManager;
+import org.cogaen.input.KeyPressedEvent;
 import org.cogaen.java2d.SceneManager;
 import org.cogaen.java2d.Screen;
 import org.cogaen.java2d.WindowedScreen;
@@ -15,9 +20,10 @@ import org.cogaen.time.Clock;
 
 import cogaenfix.InputManager;
 
+import universa.events.GamespeedChangedEvent;
 import universa.states.PlayState;
 
-public class App {
+public class App implements EventListener {
 
 	public static void main(String[] args) throws InterruptedException {
 		Screen screen = new WindowedScreen(500, 500);
@@ -34,6 +40,7 @@ public class App {
 	}
 
 	private Core core;
+	private double gamespeed;
 
 	public App(Screen screen) {
 		this.core = Core.createCoreWithStandardServices(LoggingService.DEBUG);
@@ -47,6 +54,9 @@ public class App {
 		LoggingService.getInstance(this.core).setLevel(LoggingService.INFO);
 
 		initializeGameStates();
+		
+		EventManager.getInstance(this.core).addListener(this, KeyPressedEvent.TYPE);
+		gamespeed = 1d;
 	}
 
 	private void initializeGameStates() {
@@ -68,9 +78,28 @@ public class App {
 		while (true) {
 			clock.tick();
 			//LoggingService.getInstance(this.core).logInfo("GameApp", "fps: " + 1 / clock.getAvgDelta());
-			this.core.update(clock.getDelta());
+			this.core.update(clock.getDelta() * this.gamespeed);
 			scnMngr.renderScene();
 			Thread.sleep(1);
+		}
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		if (event.isOfType(KeyPressedEvent.TYPE)) {
+			handleKeyPressedEvent((KeyPressedEvent) event);
+		}
+	}
+
+	private void handleKeyPressedEvent(KeyPressedEvent event) {
+		if (event.getKeyCode() == KeyEvent.VK_V) {
+			this.gamespeed *= 2d;
+			Event speedEvent = new GamespeedChangedEvent(this.gamespeed);
+			EventManager.getInstance(this.core).enqueueEvent(speedEvent);
+		} else if (event.getKeyCode() == KeyEvent.VK_B) {
+			this.gamespeed /= 2d;
+			Event speedEvent = new GamespeedChangedEvent(this.gamespeed);
+			EventManager.getInstance(this.core).enqueueEvent(speedEvent);
 		}
 	}
 
