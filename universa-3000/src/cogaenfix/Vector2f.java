@@ -1,4 +1,4 @@
-package universa;
+package cogaenfix;
 
 public class Vector2f {
 
@@ -91,8 +91,20 @@ public class Vector2f {
 		return interpolate(v, 0.5d);
 	}
 	
+	public Vector2f interpolate(Vector2f v1, Vector2f v2) {
+		return interpolate(v1, 1 / 3d, v2, 1 / 3d);
+	}
+	
 	public Vector2f interpolate(Vector2f v, double s) {
 		return this.multi(1 - s).add(v.multi(s));
+	}
+	
+	public Vector2f interpolate(Vector2f v1, double s1, Vector2f v2, double s2) {
+		return this.multi(1 - s1 - s2).add(v1.multi(s1)).add(v2.multi(s2));
+	}
+	
+	public String toString() {
+		return "[x:" + this.x + ", y:" + this.y + "]";
 	}
 	
 }

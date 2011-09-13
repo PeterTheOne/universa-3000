@@ -5,7 +5,6 @@ import javax.swing.WindowConstants;
 
 import org.cogaen.core.Core;
 import org.cogaen.event.EventManager;
-import org.cogaen.input.InputManager;
 import org.cogaen.java2d.SceneManager;
 import org.cogaen.java2d.Screen;
 import org.cogaen.java2d.WindowedScreen;
@@ -13,6 +12,8 @@ import org.cogaen.logging.LoggingService;
 import org.cogaen.resource.ResourceManager;
 import org.cogaen.state.GameStateManager;
 import org.cogaen.time.Clock;
+
+import cogaenfix.InputManager;
 
 import universa.states.PlayState;
 
@@ -40,10 +41,10 @@ public class App {
 		this.core.installService(new SceneManager(screen));
 		this.core.installService(new InputManager(screen.getComponent()));
 		this.core.installService(new ResourceManager());
-		this.core.installService(new PlanetoidMotionManager());
+		this.core.installService(new MotionManager());
 
 		//TODO: set fastEventDispatch false?
-		EventManager.getInstance(this.core).setFastEventDispatch(true);
+		EventManager.getInstance(this.core).setFastEventDispatch(false);
 		
 		LoggingService.getInstance(this.core).setLevel(LoggingService.INFO);
 

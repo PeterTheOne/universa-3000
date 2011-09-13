@@ -5,9 +5,15 @@ import org.cogaen.entity.Entity;
 import org.cogaen.entity.EntityManager;
 import org.cogaen.name.NameService;
 
+import cogaenfix.Vector2f;
+
 public class Planetoid extends Entity {
 
 	public static String TYPE = "Planetoid";
+	public static double TOTAL_MASS = 0;
+	public static int TOTAL_COUNT = 0;
+	
+	private static double G = 0.000000000066738480d;
 
 	private Vector2f pos;
 	private Vector2f vel;
@@ -58,12 +64,16 @@ public class Planetoid extends Entity {
 
 	@Override
 	protected void setUp() {
-		PlanetoidMotionManager.getInstance(getCore()).addBody(this);
+		MotionManager.getInstance(getCore()).addBody(this);
+		TOTAL_MASS += mass;
+		TOTAL_COUNT++;
 	}
 
 	@Override
 	protected void tearDown() {
-		PlanetoidMotionManager.getInstance(getCore()).removeBody(this);
+		TOTAL_MASS -= mass;
+		TOTAL_COUNT--;
+		MotionManager.getInstance(getCore()).removeBody(this);
 	}
 
 	@Override
@@ -84,24 +94,13 @@ public class Planetoid extends Entity {
 					distance = Double.MIN_VALUE;
 				}
 				ab.normalize();
-				//TODO: fix constant
-				double constant = 10;
-				double force = constant * this.mass * planetoid.getMass() / Math.pow(distance, 2);
+				double force = 10 * this.mass * planetoid.getMass() / Math.pow(distance, 2);
 				this.vel = this.vel.add(ab.multi(force));
 			}
 		}
 		
-		//TODO: replace Vector class
 		//Inertia & dt
 		this.pos = this.pos.add(this.vel.multi(dt).div(this.mass));
-
-		//bounce-border
-		/*if ((this.pos.getX() > 20 && this.vel.getX() > 0 ) || (this.pos.getX() < -20 && this.vel.getX() < 0)) {
-			this.vel.setX(-this.vel.getX());
-		}
-		if ((this.pos.getY() > 20 && this.vel.getY() > 0 ) || (this.pos.getY() < -20 && this.vel.getY() < 0)) {
-			this.vel.setY(-this.vel.getY());
-		}*/
 	}
 
 	public boolean isColliding(Planetoid p2) {

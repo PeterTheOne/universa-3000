@@ -3,7 +3,8 @@ package universa.events;
 import org.cogaen.event.Event;
 import org.cogaen.event.EventType;
 
-import universa.Vector2f;
+import cogaenfix.Vector2f;
+
 
 public class EntityMovedEvent extends Event {
 	

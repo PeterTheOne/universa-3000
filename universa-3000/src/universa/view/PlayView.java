@@ -1,6 +1,9 @@
 package universa.view;
 
 import java.awt.Color;
+import java.awt.Point;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 
 import org.cogaen.core.Core;
 import org.cogaen.entity.EntityCreatedEvent;
@@ -9,19 +12,27 @@ import org.cogaen.entity.EntityManager;
 import org.cogaen.event.Event;
 import org.cogaen.event.EventListener;
 import org.cogaen.event.EventManager;
+import org.cogaen.input.KeyPressedEvent;
+import org.cogaen.input.MousePressedEvent;
 import org.cogaen.java2d.Camera;
 import org.cogaen.java2d.CircleVisual;
 import org.cogaen.java2d.SceneManager;
 import org.cogaen.java2d.SceneNode;
 import org.cogaen.view.AbstractView;
 
+import cogaenfix.MouseDraggedEvent;
+import cogaenfix.MouseReleasedEvent;
+import cogaenfix.Vector2f;
+
 import universa.Planetoid;
-import universa.Vector2f;
 import universa.events.EntityMovedEvent;
 
 public class PlayView extends AbstractView implements EventListener {
 
 	private SceneManager scnMngr;
+	private Camera cam;
+	private Point prevMousePos;
+	private int buttonPressed;
 
 	public PlayView(Core core) {
 		super(core);
@@ -33,14 +44,20 @@ public class PlayView extends AbstractView implements EventListener {
 		this.scnMngr.setClearBackground(true);
 		this.scnMngr.setBackgroundColor(Color.black);
 
-		Camera cam = this.scnMngr.createCamera();
-		// 15 = wie viele meter will ich sehn..
-		cam.setZoom(this.scnMngr.getScreen().getWidth() / 60);
+		this.cam = this.scnMngr.createCamera();
+		this.cam.setZoom(this.scnMngr.getScreen().getWidth() / 100);
 
 		EventManager evtMngr = EventManager.getInstance(getCore());
 		evtMngr.addListener(this, EntityCreatedEvent.TYPE);
 		evtMngr.addListener(this, EntityDestroyedEvent.TYPE);
 		evtMngr.addListener(this, EntityMovedEvent.TYPE);
+		evtMngr.addListener(this, MousePressedEvent.TYPE);
+		evtMngr.addListener(this, MouseDraggedEvent.TYPE);
+		evtMngr.addListener(this, MouseReleasedEvent.TYPE);
+		evtMngr.addListener(this, KeyPressedEvent.TYPE);
+		
+		this.prevMousePos = new Point();
+		this.buttonPressed = MouseEvent.NOBUTTON;
 	}
 
 	@Override
@@ -62,6 +79,12 @@ public class PlayView extends AbstractView implements EventListener {
 			handleEntityDestroyedEvent((EntityDestroyedEvent) event);
 		} else if (event.isOfType(EntityMovedEvent.TYPE)) {
 			handleEntityMovedEvent((EntityMovedEvent) event);
+		} else if (event.isOfType(MousePressedEvent.TYPE)) {
+			handleMousePressedEvent((MousePressedEvent) event);
+		} else if (event.isOfType(MouseDraggedEvent.TYPE)) {
+			handleMouseDraggedEvent((MouseDraggedEvent) event);
+		} else if (event.isOfType(KeyPressedEvent.TYPE)) {
+			handleKeyPressedEvent((KeyPressedEvent) event);
 		}
 	}
 
@@ -96,5 +119,42 @@ public class PlayView extends AbstractView implements EventListener {
 		SceneNode targetNode = this.scnMngr.getSceneNode(event.getName() + "Target");
 		Vector2f vel = event.getVel();
 		targetNode.setPose(vel.getX(), vel.getY(), 0);
+	}
+
+	private void handleMousePressedEvent(MousePressedEvent event) {
+		this.prevMousePos = new Point(event.getX(), event.getY());
+		this.buttonPressed = event.getButton();
+	}
+
+	private void handleMouseDraggedEvent(MouseDraggedEvent event) {
+		if (this.buttonPressed == MouseEvent.BUTTON1) {
+			Point mousePosDiv = new Point(prevMousePos.x - event.getX(), 
+					prevMousePos.y - event.getY());
+			//TODO: why cam.getTransform() not public
+			//		why cam constructor not public
+			//		why no getPosX() and getPosY()
+			double x = this.cam.getPosX() + mousePosDiv.x / this.cam.getZoom();
+			double y = this.cam.getPosY() - mousePosDiv.y / this.cam.getZoom();
+			this.cam.setPosition(x, y);
+			this.prevMousePos = new Point(event.getX(), event.getY());
+		}	
+	}
+	
+	private void handleKeyPressedEvent(KeyPressedEvent event) {
+		if (event.getKeyCode() == KeyEvent.VK_N) {
+			zoomIn();
+		} else if (event.getKeyCode() == KeyEvent.VK_M) {
+			zoomOut();
+		}
+	}
+
+	private void zoomIn() {
+		double zoom = this.cam.getZoom();
+		this.cam.setZoom(zoom * 2d);
+	}
+
+	private void zoomOut() {
+		double zoom = this.cam.getZoom();
+		this.cam.setZoom(zoom / 2d);
 	}
 }
