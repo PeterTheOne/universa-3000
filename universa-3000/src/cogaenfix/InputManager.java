@@ -6,15 +6,11 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 import javax.swing.event.MouseInputListener;
 
 import org.cogaen.core.Core;
 import org.cogaen.core.UpdateableService;
-import org.cogaen.event.Event;
 import org.cogaen.event.EventManager;
 import org.cogaen.input.KeyPressedEvent;
 import org.cogaen.input.KeyReleasedEvent;
@@ -25,7 +21,7 @@ import org.cogaen.input.WheelEvent;
 
 public class InputManager implements UpdateableService, KeyListener, MouseInputListener, MouseWheelListener {
 
-	public static final String NAME = "cogaen.inputmanager";
+	public static final String NAME = "universia.inputmanager";
 	
 	private static final int NUM_KEY_CODES = 600;
 	private KeyState[] keyStates = new KeyState[NUM_KEY_CODES];
@@ -152,7 +148,7 @@ public class InputManager implements UpdateableService, KeyListener, MouseInputL
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		this.evtMngr.enqueueEvent( new MouseDraggedEvent(e.getButton(), e.getX(), e.getY()) );
+		this.evtMngr.enqueueEvent( new MouseDraggedEvent(e.getX(), e.getY()) );
 		e.consume();
 	}
 }
