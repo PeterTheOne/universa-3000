@@ -6,14 +6,12 @@ import java.util.List;
 import org.cogaen.core.Core;
 import org.cogaen.core.UpdateableService;
 import org.cogaen.event.EventManager;
-import org.cogaen.logging.LoggingService;
 import org.cogaen.time.TimeService;
 import org.cogaen.time.Timer;
 
 import universa.events.CollisionEvent;
 import universa.events.EntityMovedEvent;
 
-//TODO: extend cogaen.MontionManager?
 public class MotionManager implements UpdateableService {
 
 	public static final String NAME = "universa.motionmanager";
@@ -110,7 +108,7 @@ public class MotionManager implements UpdateableService {
 						//add to group
 						p2FoundGroup.add(p1.getName());
 					} else if (p1FoundGroup == null && p2FoundGroup == null) {
-						// create new groupe
+						// create new group
 						ArrayList<String> newGroup = new ArrayList<String>();
 						newGroup.add(p1.getName());
 						newGroup.add(p2.getName());

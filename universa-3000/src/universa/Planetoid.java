@@ -82,7 +82,6 @@ public class Planetoid extends Entity {
 	}
 
 	public void update(double dt) {
-		//TODO: should this be done here?
 		EntityManager entMngr = EntityManager.getInstance(getCore());
 		for (int i = 0; i < entMngr.getNumEntities(); i++) {
 			Entity entity = entMngr.getEntity(i);

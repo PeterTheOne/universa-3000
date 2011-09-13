@@ -154,7 +154,7 @@ public class PlayView extends AbstractView implements EventListener {
 		//setPose? rotation?
 		node.setPose(pos.getX(), pos.getY(), 0);
 		
-		//TODO: no node.getChild(String name) ?		
+		//TODO: no node.getChild(String name) ?
 		SceneNode targetNode = this.scnMngr.getSceneNode(event.getName() + "Target");
 		Vector2f vel = event.getVel().div(event.getMass());
 		targetNode.setPose(vel.getX(), vel.getY(), 0);

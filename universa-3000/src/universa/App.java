@@ -36,14 +36,12 @@ public class App {
 	private Core core;
 
 	public App(Screen screen) {
-		//TODO: why 3times Time service in documentation
 		this.core = Core.createCoreWithStandardServices(LoggingService.DEBUG);
 		this.core.installService(new SceneManager(screen));
 		this.core.installService(new InputManager(screen.getComponent()));
 		this.core.installService(new ResourceManager());
 		this.core.installService(new MotionManager());
 
-		//TODO: set fastEventDispatch false?
 		EventManager.getInstance(this.core).setFastEventDispatch(false);
 		
 		LoggingService.getInstance(this.core).setLevel(LoggingService.INFO);
