@@ -26,7 +26,7 @@ import universa.states.PlayState;
 public class App implements EventListener {
 
 	public static void main(String[] args) throws InterruptedException {
-		Screen screen = new WindowedScreen(500, 500);
+		Screen screen = new WindowedScreen(1000, 1000);
 		JFrame frame = new JFrame("Game States");
 		frame.add(screen.getComponent());
 		frame.setResizable(false);

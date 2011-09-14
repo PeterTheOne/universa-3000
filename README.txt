@@ -9,6 +9,7 @@ drag mouse to drag view
 
 Created by:
 Programmer:	Peter Grassberger (PeterTheOne)
+Graphics:	Stefan Grassberger (stevygee)
 Advisor:	Julian Grassberger
 
 License:	http://www.opensource.org/licenses/mit-license.php
