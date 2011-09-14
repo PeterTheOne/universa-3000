@@ -22,10 +22,12 @@ import org.cogaen.java2d.SceneManager;
 import org.cogaen.java2d.SceneNode;
 import org.cogaen.java2d.Screen;
 import org.cogaen.java2d.TextVisual;
+import org.cogaen.java2d.Visual;
 import org.cogaen.view.AbstractView;
 
 import cogaenfix.MouseDraggedEvent;
 import cogaenfix.MouseReleasedEvent;
+import cogaenfix.SplineVisual;
 import cogaenfix.Vector2f;
 
 import universa.Planetoid;
@@ -139,6 +141,14 @@ public class PlayView extends AbstractView implements EventListener {
 		if (event.getEntityType().equals(Planetoid.TYPE)) {
 			EntityManager entMngr = EntityManager.getInstance(getCore());
 			Planetoid planetoid = (Planetoid) entMngr.getEntity(event.getEntityName());
+			
+			// Trails
+			SceneNode trailNode = this.scnMngr.createSceneNode(event.getEntityName() + "Trail");
+			SplineVisual trailVisual = new SplineVisual((float) (planetoid.getRadius() * 2));
+			trailVisual.setColor(Color.DARK_GRAY);
+			trailNode.addVisual((Visual)trailVisual);
+			this.scnMngr.getRootSceneNode().addChild(trailNode);
+			
 			SceneNode scnNode = this.scnMngr.createSceneNode(event.getEntityName());
 			CircleVisual circle = this.scnMngr.createCircleVisual(planetoid.getRadius());
 			circle.setColor(Color.WHITE);			
@@ -156,6 +166,7 @@ public class PlayView extends AbstractView implements EventListener {
 	}
 
 	private void handleEntityDestroyedEvent(EntityDestroyedEvent event) {
+		this.scnMngr.destroySceneNode(event.getEntityName() + "Trail");
 		this.scnMngr.destroySceneNode(event.getEntityName());
 		this.planetoidCount.setText("Planetoid Count: " + Planetoid.TOTAL_COUNT);
 		this.planetoidMass.setText("Planetoid Mass: " + Planetoid.TOTAL_MASS);
@@ -171,6 +182,11 @@ public class PlayView extends AbstractView implements EventListener {
 		SceneNode targetNode = this.scnMngr.getSceneNode(event.getName() + "Target");
 		Vector2f vel = event.getVel().div(event.getMass());
 		targetNode.setPose(vel.getX(), vel.getY(), 0);
+		
+		// Trails
+		SceneNode trailNode = this.scnMngr.getSceneNode(event.getName() + "Trail");
+		SplineVisual trailVisual = (SplineVisual) trailNode.getVisuals().get(0);
+		trailVisual.addVertex(pos);
 	}
 
 	private void handleMousePressedEvent(MousePressedEvent event) {
