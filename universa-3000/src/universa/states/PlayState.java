@@ -46,9 +46,9 @@ public class PlayState implements GameState, EventListener {
 		ResourceManager.getInstance(this.core).loadGroup(NAME);
 		this.view.engage();
 
-		Planetoid sun = new Planetoid(this.core, new Vector2f(), 1000 * EARTH_MASS);
+		Planetoid sun = new Planetoid(this.core, new Vector2f(), 10000 * EARTH_MASS);
 		EntityManager.getInstance(this.core).addEntity(sun);
-		for (int i = 0; i < 200; i++) {
+		for (int i = 0; i < 100; i++) {
 			//TODO: bug when vector stays the same
 			double rand1 = (Math.random() * 2) - 1;
 			double rand2;
@@ -56,7 +56,7 @@ public class PlayState implements GameState, EventListener {
 			do {
 				rand2 = (Math.random() * 2) - 1;
 				d = rand1 * rand1 + rand2 * rand2;
-			} while (1 < d && 0.75d > d);
+			} while (1 < d);
 			Vector2f pos = new Vector2f(rand1, rand2);
 			pos = pos.multi(100000000000d)/*.sub(50000000000d)*/;
 			Planetoid planetoid = new Planetoid(this.core, pos, EARTH_MASS);

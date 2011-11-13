@@ -28,10 +28,10 @@ public class SplineVisual extends Visual {
 	
 	public void addVertex(Vector2f vector) {
 		// Filter by distance
-		if( vertices.size() < 2 || vertices.get(vertices.size()-2).sub(vertices.getLast()).length() > this.strokeWidth * 5 )
+		if( vertices.size() < 2 || vertices.get(vertices.size()-2).sub(vertices.getLast()).length() > this.strokeWidth * 4 )
 		{
 			vertices.addLast(vector);
-			if(vertices.size() > 10)	// Buffer
+			if(vertices.size() > 50)	// Buffer
 				vertices.removeFirst();
 		}
 

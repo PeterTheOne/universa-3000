@@ -153,11 +153,6 @@ public class PlayView extends AbstractView implements EventListener {
 			CircleVisual circle = this.scnMngr.createCircleVisual(planetoid.getRadius());
 			circle.setColor(Color.WHITE);			
 			scnNode.addVisual(circle);
-			SceneNode targetNode = this.scnMngr.createSceneNode(event.getEntityName() + "Target");
-			CircleVisual targetCircle = this.scnMngr.createCircleVisual(planetoid.getRadius() / 5d);
-			targetCircle.setColor(Color.BLUE);
-			targetNode.addVisual(targetCircle);
-			scnNode.addChild(targetNode);
 			this.scnMngr.getRootSceneNode().addChild(scnNode);
 
 			this.planetoidCount.setText("Planetoid Count: " + Planetoid.TOTAL_COUNT);
@@ -175,13 +170,7 @@ public class PlayView extends AbstractView implements EventListener {
 	private void handleEntityMovedEvent(EntityMovedEvent event) {
 		SceneNode node = this.scnMngr.getSceneNode(event.getName());
 		Vector2f pos = event.getPos();
-		//setPose? rotation?
 		node.setPose(pos.getX(), pos.getY(), 0);
-		
-		//TODO: no node.getChild(String name) ?
-		SceneNode targetNode = this.scnMngr.getSceneNode(event.getName() + "Target");
-		Vector2f vel = event.getVel().div(event.getMass());
-		targetNode.setPose(vel.getX(), vel.getY(), 0);
 		
 		// Trails
 		SceneNode trailNode = this.scnMngr.getSceneNode(event.getName() + "Trail");
