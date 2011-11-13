@@ -21,13 +21,10 @@ import universa.events.CollisionEvent;
 import universa.view.PlayView;
 
 public class PlayState extends BasicState implements EventListener {
-
-	public static CogaenId ID = new CogaenId("Play");
 	
-	private static double EARTH_MASS = 5.9736 * Math.pow(10, 24);
-	private static double SUN_MASS = 1.9891 * Math.pow(10, 30);
+	public static final double WORLD_WIDTH = 1000;
+	public static CogaenId ID = new CogaenId("Play");
 
-	private Core core;
 	private View view;
 
 	public PlayState(Core core) {
@@ -37,14 +34,16 @@ public class PlayState extends BasicState implements EventListener {
 
 	@Override
 	public void onEnter() {
-		EventService evtSrv = EventService.getInstance(this.core);
+		EventService evtSrv = EventService.getInstance(getCore());
 		evtSrv.addListener(this, CollisionEvent.TYPE_ID);		
-		ResourceService.getInstance(this.core).loadGroup(ID);
+		//ResourceService.getInstance(getCore()).loadGroup(ID);
 		this.view.engage();
 
-		Planetoid sun = new Planetoid(this.core, new Vector2f(), 10000 * EARTH_MASS);
-		EntityService.getInstance(this.core).addEntity(sun);
-		for (int i = 0; i < 100; i++) {
+		Vector2f sunPos = new Vector2f(0, 0);
+		Planetoid sun = new Planetoid(getCore(), sunPos, 400);
+		EntityService.getInstance(getCore()).addEntity(sun);
+		
+		for (int i = 0; i < 20; i++) {
 			//TODO: bug when vector stays the same
 			double rand1 = (Math.random() * 2) - 1;
 			double rand2;
@@ -54,22 +53,22 @@ public class PlayState extends BasicState implements EventListener {
 				d = rand1 * rand1 + rand2 * rand2;
 			} while (1 < d);
 			Vector2f pos = new Vector2f(rand1, rand2);
-			pos = pos.multi(100000000000d)/*.sub(50000000000d)*/;
-			Planetoid planetoid = new Planetoid(this.core, pos, EARTH_MASS);
+			pos = pos.multi(500d);
+			Planetoid planetoid = new Planetoid(getCore(), pos, 10);
 			Vector2f vel = new Vector2f(pos.normalize().getY(), -pos.normalize().getX());
-			vel = vel.multi(100000000000000000000d / (pos.length() * 2));
+			vel = vel.multi(100000d / (pos.length() * 2));
 			planetoid.setVel(vel);
-			EntityService.getInstance(this.core).addEntity(planetoid);
+			EntityService.getInstance(getCore()).addEntity(planetoid);
 		}
 	}
 
 	@Override
 	public void onExit() {
-		EntityService.getInstance(this.core).removeAllEntities();
+		EntityService.getInstance(getCore()).removeAllEntities();
 
 		this.view.disengage();
-		ResourceService.getInstance(this.core).unloadGroup(ID);
-		EventService.getInstance(this.core).removeListener(this);
+		ResourceService.getInstance(getCore()).unloadGroup(ID);
+		EventService.getInstance(getCore()).removeListener(this);
 	}
 
 	@Override
@@ -80,7 +79,7 @@ public class PlayState extends BasicState implements EventListener {
 	}
 
 	private void handleCollisionEvent(CollisionEvent event) {
-		EntityService entMngr = EntityService.getInstance(this.core);
+		EntityService entMngr = EntityService.getInstance(getCore());
 		ArrayList<Planetoid> planetoids = new ArrayList<Planetoid>();
 		ArrayList<CogaenId> group = event.getCollidingPlanetoids();
 		for (CogaenId id : group) {
@@ -89,7 +88,8 @@ public class PlayState extends BasicState implements EventListener {
 					entity instanceof Planetoid) {
 				planetoids.add((Planetoid) entity);
 			} else {
-				LoggingService.getInstance(this.core).logError("Planetoid", "entity not found, cannot merge");
+				LoggingService.getInstance(getCore()).logError("Planetoid", 
+						"entity not found, cannot merge");
 				return;
 			}
 		}
@@ -126,7 +126,7 @@ public class PlayState extends BasicState implements EventListener {
 				pos = pos.add(planetoid.getPos());
 				vel = vel.add(planetoid.getVel());
 				if (!entMngr.hasEntity(planetoid.getId())) {
-					LoggingService.getInstance(this.core).logError("Planetoid", "cannot remove");
+					LoggingService.getInstance(getCore()).logError("Planetoid", "cannot remove");
 				}
 			}
 			pos = pos.div(size);
@@ -136,7 +136,7 @@ public class PlayState extends BasicState implements EventListener {
 		for (Planetoid planetoid : planetoids) {
 			entMngr.removeEntity(planetoid.getId());
 		}
-		Planetoid newPlanetoid = new Planetoid(this.core, pos, mass);
+		Planetoid newPlanetoid = new Planetoid(getCore(), pos, mass);
 		newPlanetoid.setVel(vel);
 		entMngr.addEntity(newPlanetoid);
 	}

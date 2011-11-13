@@ -2,9 +2,6 @@ package universa;
 
 import java.awt.event.KeyEvent;
 
-import javax.swing.JFrame;
-import javax.swing.WindowConstants;
-
 import org.cogaen.core.Core;
 import org.cogaen.core.ServiceException;
 import org.cogaen.entity.EntityService;
@@ -12,7 +9,6 @@ import org.cogaen.event.Event;
 import org.cogaen.event.EventListener;
 import org.cogaen.event.EventService;
 import org.cogaen.logging.ConsoleLogger;
-import org.cogaen.logging.LoggingService;
 import org.cogaen.lwjgl.input.KeyPressedEvent;
 import org.cogaen.lwjgl.input.KeyboardService;
 import org.cogaen.lwjgl.scene.SceneService;
@@ -24,8 +20,6 @@ import org.cogaen.state.GameStateService;
 import org.cogaen.task.TaskService;
 import org.cogaen.time.Clock;
 import org.cogaen.time.TimeService;
-
-import cogaenfix.InputManager;
 
 import universa.events.GamespeedChangedEvent;
 import universa.states.PlayState;
@@ -58,6 +52,7 @@ public class App implements EventListener {
 		this.core.addService(new EntityService());
 		this.core.addService(new KeyboardService());
 		this.core.addService(new SceneService(1024, 768, false, true));
+		this.core.addService(new MotionManager());
 	}
 
 	private void runGame() throws ServiceException {
@@ -93,7 +88,7 @@ public class App implements EventListener {
 		
 		while(!stateSrv.isEndState()) {
 			clock.tick();
-			this.core.update(clock.getDelta() * this.gamespeed);
+			this.core.update(clock.getDelta()/* * this.gamespeed*/);
 			scnService.renderScene();
 		}
 	}

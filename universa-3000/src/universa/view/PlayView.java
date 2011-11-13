@@ -7,30 +7,36 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
 import org.cogaen.core.Core;
+import org.cogaen.entity.EntityService;
 import org.cogaen.event.Event;
 import org.cogaen.event.EventListener;
 import org.cogaen.event.EventService;
 import org.cogaen.lwjgl.scene.Camera;
 import org.cogaen.lwjgl.scene.SceneNode;
 import org.cogaen.lwjgl.scene.SceneService;
+import org.cogaen.name.CogaenId;
 import org.cogaen.view.View;
 
 import cogaenfix.MouseDraggedEvent;
 import cogaenfix.MouseReleasedEvent;
-import cogaenfix.SplineVisual;
 import cogaenfix.Vector2f;
 
 import universa.Planetoid;
-import universa.events.EntityMovedEvent;
+import universa.events.EntityCreatedEvent;
+import universa.events.EntityDestroyedEvent;
 import universa.events.GamespeedChangedEvent;
+import universa.events.PoseUpdateEvent;
+import universa.representation.BaseRepresentation;
+import universa.representation.PlanetoidRepresentation;
+import universa.states.PlayState;
 
 public class PlayView extends View implements EventListener {
 
 	private SceneService scnSrv;
-	private Dimension scrDim;
 	private Camera cam;
 	private Point prevMousePos;
 	private int buttonPressed;
+	private Dimension scrDim;
 	
 	/*private Overlay speedOverlay;
 	private TextVisual speed;
@@ -52,21 +58,25 @@ public class PlayView extends View implements EventListener {
 
 	@Override
 	public void engage() {
-		//this.scnSvr.setClearBackground(true);
-		//this.scnSrv.setBackgroundColor(Color.black);
-
-		this.cam = this.scnSrv.createCamera();
-		this.cam.setZoom(this.scnSrv.getScreenWidth() / 200000000000d);
-
+		// register for events
 		EventService evtSrv = EventService.getInstance(getCore());
-		//evtSrv.addListener(this, EntityCreatedEvent.TYPE_ID);
-		//evtSrv.addListener(this, EntityDestroyedEvent.TYPE_ID);
-		evtSrv.addListener(this, EntityMovedEvent.TYPE_ID);
+		evtSrv.addListener(this, EntityCreatedEvent.TYPE_ID);
+		evtSrv.addListener(this, EntityDestroyedEvent.TYPE_ID);
+		evtSrv.addListener(this, PoseUpdateEvent.TYPE_ID);
 		//evtSrv.addListener(this, MousePressedEvent.TYPE_ID);
 		evtSrv.addListener(this, MouseDraggedEvent.TYPE_ID);
 		evtSrv.addListener(this, MouseReleasedEvent.TYPE_ID);
 		//evtSrv.addListener(this, KeyPressedEvent.TYPE_ID);
 		evtSrv.addListener(this, GamespeedChangedEvent.TYPE_ID);
+		
+		// initialize camera
+		SceneService scnSrv = SceneService.getInstance(getCore());
+		Camera camera = scnSrv.createCamera();
+		camera.setZoom(scnSrv.getScreenWidth() / PlayState.WORLD_WIDTH);
+		
+		// initialize sub systems
+		super.engage();
+		
 		
 		this.prevMousePos = new Point();
 		this.buttonPressed = MouseEvent.NOBUTTON;
@@ -109,12 +119,12 @@ public class PlayView extends View implements EventListener {
 
 	@Override
 	public void handleEvent(Event event) {
-		/*if (event.isOfType(EntityCreatedEvent.TYPE_ID)) {
+		if (event.isOfType(EntityCreatedEvent.TYPE_ID)) {
 			handleEntityCreated((EntityCreatedEvent) event);
 		} else if (event.isOfType(EntityDestroyedEvent.TYPE_ID)) {
 			handleEntityDestroyedEvent((EntityDestroyedEvent) event);
-		} else */if (event.isOfType(EntityMovedEvent.TYPE_ID)) {
-			handleEntityMovedEvent((EntityMovedEvent) event);
+		} else if (event.isOfType(PoseUpdateEvent.TYPE_ID)) {
+			handleEntityMovedEvent((PoseUpdateEvent) event);
 		} else /*if (event.isOfType(MousePressedEvent.TYPE_ID)) {
 			handleMousePressedEvent((MousePressedEvent) event);
 		} else*/ if (event.isOfType(MouseDraggedEvent.TYPE_ID)) {
@@ -126,40 +136,43 @@ public class PlayView extends View implements EventListener {
 		}
 	}
 
-	/*private void handleEntityCreated(EntityCreatedEvent event) {
-		if (event.getEntityType().equals(Planetoid.TYPE)) {
-			EntityManager entMngr = EntityManager.getInstance(getCore());
-			Planetoid planetoid = (Planetoid) entMngr.getEntity(event.getEntityName());
+	private void handleEntityCreated(EntityCreatedEvent event) {
+		if (event.getEntityTypeId().equals(Planetoid.TYPE_ID)) {
+			EntityService entMngr = EntityService.getInstance(getCore());
+			Planetoid planetoid = (Planetoid) entMngr.getEntity(event.getEntityId());
+			
+			BaseRepresentation er = new PlanetoidRepresentation(getCore(), 
+					event.getEntityId(), planetoid.getRadius());
+			addRepresentation(event.getEntityId(), er);
+			er.setPose(event.getPosX(), event.getPosY());
 			
 			// Trails
-			SceneNode trailNode = this.scnSrv.createSceneNode(event.getEntityName() + "Trail");
+			/*SceneNode trailNode = this.scnSrv.createSceneNode(event.getEntityName() + "Trail");
 			SplineVisual trailVisual = new SplineVisual((float) (planetoid.getRadius() * 2));
 			trailVisual.setColor(Color.DARK_GRAY);
 			trailNode.addVisual((Visual)trailVisual);
-			this.scnSrv.getRootSceneNode().addChild(trailNode);
+			this.scnSrv.getRootSceneNode().addChild(trailNode);*/
 			
-			SceneNode scnNode = this.scnSrv.createSceneNode(event.getEntityName());
+			/*SceneNode scnNode = this.scnSrv.createSceneNode(event.getEntityName());
 			CircleVisual circle = this.scnSrv.createCircleVisual(planetoid.getRadius());
 			circle.setColor(Color.WHITE);			
 			scnNode.addVisual(circle);
-			this.scnSrv.getRootSceneNode().addChild(scnNode);
+			this.scnSrv.getRootSceneNode().addChild(scnNode);*/
 
-			this.planetoidCount.setText("Planetoid Count: " + Planetoid.TOTAL_COUNT);
-			this.planetoidMass.setText("Planetoid Mass: " + Planetoid.TOTAL_MASS);
+			//this.planetoidCount.setText("Planetoid Count: " + Planetoid.TOTAL_COUNT);
+			//this.planetoidMass.setText("Planetoid Mass: " + Planetoid.TOTAL_MASS);
 		}
 	}
 
 	private void handleEntityDestroyedEvent(EntityDestroyedEvent event) {
-		this.scnSrv.destroySceneNode(event.getEntityName() + "Trail");
-		this.scnSrv.destroySceneNode(event.getEntityName());
-		this.planetoidCount.setText("Planetoid Count: " + Planetoid.TOTAL_COUNT);
-		this.planetoidMass.setText("Planetoid Mass: " + Planetoid.TOTAL_MASS);
-	}*/
+		removeRepresentation(event.getEntityId());
+		//this.planetoidCount.setText("Planetoid Count: " + Planetoid.TOTAL_COUNT);
+		//this.planetoidMass.setText("Planetoid Mass: " + Planetoid.TOTAL_MASS);
+	}
 
-	private void handleEntityMovedEvent(EntityMovedEvent event) {
-		SceneNode node = this.scnSrv.getSceneNode(event.getName());
-		Vector2f pos = event.getPos();
-		node.setPose(pos.getX(), pos.getY(), 0);
+	private void handleEntityMovedEvent(PoseUpdateEvent event) {
+		BaseRepresentation er = (BaseRepresentation) getRepresentation(event.getEntityId());
+		er.setPose(event.getPosX(), event.getPosY());
 		
 		// Trails
 		/*SceneNode trailNode = this.scnSrv.getSceneNode(event.getName() + "Trail");

@@ -4,43 +4,40 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.cogaen.core.Core;
+import org.cogaen.core.ServiceException;
 import org.cogaen.core.UpdateableService;
-import org.cogaen.event.EventManager;
+import org.cogaen.event.EventService;
+import org.cogaen.name.CogaenId;
 import org.cogaen.time.TimeService;
 import org.cogaen.time.Timer;
 
 import universa.events.CollisionEvent;
-import universa.events.EntityMovedEvent;
+import universa.events.PoseUpdateEvent;
 
-public class MotionManager implements UpdateableService {
+public class MotionManager extends UpdateableService {
 
-	public static final String NAME = "universa.motionmanager";
+	public static final CogaenId ID = new CogaenId("universa.motionmanager");
+	public static final String NAME = "Motion Manager";
 	
 	private List<Planetoid> planetoids = new ArrayList<Planetoid>();
-	private Core core;
-	private EventManager evtMngr;
-	private String timerName;
+	private EventService evtSrv;
 	private Timer timer;
 	
-	ArrayList<ArrayList<String>> collisionGroups = new ArrayList<ArrayList<String>>();
-
-	public MotionManager() {
-		this(TimeService.DEFAULT_TIMER);
-	}
+	ArrayList<ArrayList<CogaenId>> collisionGroups = new ArrayList<ArrayList<CogaenId>>();
 	
-	public MotionManager(String timerName) {
-		this.timerName = timerName;
+	public MotionManager() {
+		addDependency(TimeService.ID);
 	}
 
 	@Override
-	public void initialize(Core core) {
-		this.core = core;
-		this.evtMngr = EventManager.getInstance(this.core);
-		this.timer = TimeService.getInstance(this.core).getTimer(this.timerName);
+	public void doStart() throws ServiceException {
+		super.doStart();
+		this.evtSrv = EventService.getInstance(getCore());
+		this.timer = TimeService.getInstance(getCore()).getTimer();
 	}
 	
 	public static MotionManager getInstance(Core core) {
-		return (MotionManager) core.getService(NAME);
+		return (MotionManager) core.getService(ID);
 	}
 			
 	public void addBody(Planetoid planetoid) {
@@ -56,9 +53,6 @@ public class MotionManager implements UpdateableService {
 		double dt = this.timer.getDeltaTime();
 		for (Planetoid planetoid : this.planetoids) {
 			planetoid.update(dt);
-			EntityMovedEvent event = new EntityMovedEvent(planetoid.getName(), 
-					planetoid.getPos(), planetoid.getVel(), planetoid.getMass());
-			this.evtMngr.enqueueEvent(event);
 		}
 		doCollisionTest();
 	}
@@ -72,15 +66,15 @@ public class MotionManager implements UpdateableService {
 				Planetoid p2 = this.planetoids.get(j);
 				
 				if (p1.isColliding(p2)) {
-					ArrayList<String> p1FoundGroup = null;
-					ArrayList<String> p2FoundGroup = null;
-					for (ArrayList<String> group : collisionGroups) {
+					ArrayList<CogaenId> p1FoundGroup = null;
+					ArrayList<CogaenId> p2FoundGroup = null;
+					for (ArrayList<CogaenId> group : collisionGroups) {
 						// check p1 or p2 has already collided 
-						for (String name : group) {
-							if (name.equals(p1.getName())) {
+						for (CogaenId id : group) {
+							if (id.equals(p1.getId())) {
 								p1FoundGroup = group;
 							}
-							if (name.equals(p2.getName())) {
+							if (id.equals(p2.getId())) {
 								p2FoundGroup = group;
 							}
 						}
@@ -91,27 +85,27 @@ public class MotionManager implements UpdateableService {
 						if (p1FoundGroup.equals(p2FoundGroup)) {
 							continue;
 						}
-						ArrayList<String> newGroup = new ArrayList<String>();
-						for (String name : p1FoundGroup) {
-							newGroup.add(name);
+						ArrayList<CogaenId> newGroup = new ArrayList<CogaenId>();
+						for (CogaenId id : p1FoundGroup) {
+							newGroup.add(id);
 						}
-						for (String name : p2FoundGroup) {
-							newGroup.add(name);
+						for (CogaenId id : p2FoundGroup) {
+							newGroup.add(id);
 						}
 						this.collisionGroups.remove(p1FoundGroup);
 						this.collisionGroups.remove(p2FoundGroup);
 						this.collisionGroups.add(newGroup);
 					} else if (p1FoundGroup != null && p2FoundGroup == null) {
 						//add to group
-						p1FoundGroup.add(p2.getName());
+						p1FoundGroup.add(p2.getId());
 					} else if (p1FoundGroup == null && p2FoundGroup != null) {
 						//add to group
-						p2FoundGroup.add(p1.getName());
+						p2FoundGroup.add(p1.getId());
 					} else if (p1FoundGroup == null && p2FoundGroup == null) {
 						// create new group
-						ArrayList<String> newGroup = new ArrayList<String>();
-						newGroup.add(p1.getName());
-						newGroup.add(p2.getName());
+						ArrayList<CogaenId> newGroup = new ArrayList<CogaenId>();
+						newGroup.add(p1.getId());
+						newGroup.add(p2.getId());
 						this.collisionGroups.add(newGroup);
 					}
 				}
@@ -119,14 +113,19 @@ public class MotionManager implements UpdateableService {
 			}
 		}
 		
-		for (ArrayList<String> group : collisionGroups) {
-			EventManager.getInstance(this.core).enqueueEvent(new CollisionEvent(group));
+		for (ArrayList<CogaenId> group : collisionGroups) {
+			EventService.getInstance(getCore()).dispatchEvent(new CollisionEvent(group));
 		}
 	}
 
 	@Override
 	public String getName() {
 		return NAME;
+	}
+
+	@Override
+	public CogaenId getId() {
+		return ID;
 	}
 
 }

@@ -14,7 +14,7 @@ Advisor:	Julian Grassberger
 
 License:	http://www.opensource.org/licenses/mit-license.php
 
-Implemented using the cogaen3-java engine by Roman Divotkey:
-Cogaen-Source: 	http://code.google.com/p/cogaen3-java/
+Implemented using the cogaen3-java v3.1.1 engine by Roman Divotkey:
+Cogaen-Source: 	https://github.com/divotkey/cogaen3-java
 Cogaen-Website:	http://www.cogaen.org/
 Cogaen-License:	http://www.opensource.org/licenses/mit-license.php
