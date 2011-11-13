@@ -2,14 +2,15 @@ package universa;
 
 import org.cogaen.core.Core;
 import org.cogaen.entity.Entity;
-import org.cogaen.entity.EntityManager;
-import org.cogaen.name.NameService;
+import org.cogaen.entity.EntityService;
+import org.cogaen.name.CogaenId;
+import org.cogaen.name.IdService;
 
 import cogaenfix.Vector2f;
 
 public class Planetoid extends Entity {
 
-	public static String TYPE = "Planetoid";
+	public static CogaenId TYPE = new CogaenId("Planetoid");
 	public static double TOTAL_MASS = 0;
 	public static int TOTAL_COUNT = 0;
 	
@@ -22,10 +23,10 @@ public class Planetoid extends Entity {
 	private double mass;
 
 	public Planetoid(Core core, Vector2f pos, double mass) {
-		this(core, NameService.getInstance(core).generateName(), pos, mass);
+		this(core, IdService.getInstance(core).generateId(), pos, mass);
 	}
 
-	public Planetoid(Core core, String name, Vector2f pos, double mass) {
+	public Planetoid(Core core, CogaenId name, Vector2f pos, double mass) {
 		super(core, name);
 		this.pos = pos;
 		this.vel = new Vector2f();
@@ -58,34 +59,27 @@ public class Planetoid extends Entity {
 	}
 
 	@Override
-	public String getType() {
+	public CogaenId getType() {
 		return TYPE;
 	}
 
-	@Override
 	protected void setUp() {
 		MotionManager.getInstance(getCore()).addBody(this);
 		TOTAL_MASS += mass;
 		TOTAL_COUNT++;
 	}
 
-	@Override
 	protected void tearDown() {
 		TOTAL_MASS -= mass;
 		TOTAL_COUNT--;
 		MotionManager.getInstance(getCore()).removeBody(this);
 	}
 
-	@Override
-	public void update() {
-		//intentionally left empty
-	}
-
 	public void update(double dt) {
 		Vector2f acc = new Vector2f();
-		EntityManager entMngr = EntityManager.getInstance(getCore());
-		for (int i = 0; i < entMngr.getNumEntities(); i++) {
-			Entity entity = entMngr.getEntity(i);
+		EntityService entSvr = EntityService.getInstance(getCore());
+		for (int i = 0; i < entSvr.numEntities(); i++) {
+			Entity entity = entSvr.getEntity(i);
 			if (entity.getType().equals(TYPE) && !entity.equals(this)) {
 				Planetoid planetoid = (Planetoid) entity;
 				Vector2f ab = planetoid.getPos().sub(this.getPos());

@@ -1,11 +1,11 @@
 package universa.events;
 
 import org.cogaen.event.Event;
-import org.cogaen.event.EventType;
+import org.cogaen.name.CogaenId;
 
 public class GamespeedChangedEvent extends Event {
 	
-	public static EventType TYPE = new EventType("GamespeedChanged");
+	public static final CogaenId TYPE_ID = new CogaenId("GamespeedChanged");
 	private double gamespeed;
 	
 	public GamespeedChangedEvent(double gamespeed) {
@@ -17,8 +17,8 @@ public class GamespeedChangedEvent extends Event {
 	}
 
 	@Override
-	public EventType getType() {
-		return TYPE;
+	public CogaenId getTypeId() {
+		return TYPE_ID;
 	}
 
 }

@@ -1,14 +1,14 @@
 package universa.events;
 
 import org.cogaen.event.Event;
-import org.cogaen.event.EventType;
+import org.cogaen.name.CogaenId;
 
 import cogaenfix.Vector2f;
 
 
 public class EntityMovedEvent extends Event {
 	
-	public static EventType TYPE = new EventType("EntityMoved");
+	public static final CogaenId TYPE_ID = new CogaenId("EntityMoved");
 	
 	private String name;
 	private Vector2f pos;
@@ -37,10 +37,10 @@ public class EntityMovedEvent extends Event {
 	public double getMass() {
 		return this.mass;
 	}
-	
+
 	@Override
-	public EventType getType() {
-		return TYPE;
+	public CogaenId getTypeId() {
+		return TYPE_ID;
 	}
 
 }

@@ -3,24 +3,23 @@ package universa.events;
 import java.util.ArrayList;
 
 import org.cogaen.event.Event;
-import org.cogaen.event.EventType;
-
+import org.cogaen.name.CogaenId;
 public class CollisionEvent extends Event {
 
-	public static EventType TYPE = new EventType("Collision");
-	private ArrayList<String> collidingPlanetoids;
+	public static final CogaenId TYPE_ID = new CogaenId("Collision");
+	private ArrayList<CogaenId> collidingPlanetoids;
 	
-	public CollisionEvent(ArrayList<String> collidingPlanetoids) {
+	public CollisionEvent(ArrayList<CogaenId> collidingPlanetoids) {
 		this.collidingPlanetoids = collidingPlanetoids;
 	}
 	
-	public ArrayList<String> getCollidingPlanetoids() {
+	public ArrayList<CogaenId> getCollidingPlanetoids() {
 		return this.collidingPlanetoids;
 	}
 
 	@Override
-	public EventType getType() {
-		return TYPE;
+	public CogaenId getTypeId() {
+		return TYPE_ID;
 	}
 
 }

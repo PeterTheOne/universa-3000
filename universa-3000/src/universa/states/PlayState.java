@@ -4,13 +4,14 @@ import java.util.ArrayList;
 
 import org.cogaen.core.Core;
 import org.cogaen.entity.Entity;
-import org.cogaen.entity.EntityManager;
+import org.cogaen.entity.EntityService;
 import org.cogaen.event.Event;
 import org.cogaen.event.EventListener;
-import org.cogaen.event.EventManager;
+import org.cogaen.event.EventService;
 import org.cogaen.logging.LoggingService;
-import org.cogaen.resource.ResourceManager;
-import org.cogaen.state.GameState;
+import org.cogaen.name.CogaenId;
+import org.cogaen.resource.ResourceService;
+import org.cogaen.state.BasicState;
 import org.cogaen.view.View;
 
 import cogaenfix.Vector2f;
@@ -19,9 +20,9 @@ import universa.Planetoid;
 import universa.events.CollisionEvent;
 import universa.view.PlayView;
 
-public class PlayState implements GameState, EventListener {
+public class PlayState extends BasicState implements EventListener {
 
-	public static String NAME = "Play";
+	public static CogaenId ID = new CogaenId("Play");
 	
 	private static double EARTH_MASS = 5.9736 * Math.pow(10, 24);
 	private static double SUN_MASS = 1.9891 * Math.pow(10, 30);
@@ -30,24 +31,19 @@ public class PlayState implements GameState, EventListener {
 	private View view;
 
 	public PlayState(Core core) {
-		this.core = core;
+		super(core);
 		this.view = new PlayView(core);
 	}
 
 	@Override
-	public String getName() {
-		return NAME;
-	}
-
-	@Override
 	public void onEnter() {
-		EventManager evtMngr = EventManager.getInstance(this.core);
-		evtMngr.addListener(this, CollisionEvent.TYPE);		
-		ResourceManager.getInstance(this.core).loadGroup(NAME);
+		EventService evtSrv = EventService.getInstance(this.core);
+		evtSrv.addListener(this, CollisionEvent.TYPE_ID);		
+		ResourceService.getInstance(this.core).loadGroup(ID);
 		this.view.engage();
 
 		Planetoid sun = new Planetoid(this.core, new Vector2f(), 10000 * EARTH_MASS);
-		EntityManager.getInstance(this.core).addEntity(sun);
+		EntityService.getInstance(this.core).addEntity(sun);
 		for (int i = 0; i < 100; i++) {
 			//TODO: bug when vector stays the same
 			double rand1 = (Math.random() * 2) - 1;
@@ -63,33 +59,33 @@ public class PlayState implements GameState, EventListener {
 			Vector2f vel = new Vector2f(pos.normalize().getY(), -pos.normalize().getX());
 			vel = vel.multi(100000000000000000000d / (pos.length() * 2));
 			planetoid.setVel(vel);
-			EntityManager.getInstance(this.core).addEntity(planetoid);
+			EntityService.getInstance(this.core).addEntity(planetoid);
 		}
 	}
 
 	@Override
 	public void onExit() {
-		EntityManager.getInstance(this.core).removeAllEntities();
+		EntityService.getInstance(this.core).removeAllEntities();
 
 		this.view.disengage();
-		ResourceManager.getInstance(this.core).unloadGroup(NAME);
-		EventManager.getInstance(this.core).removeListener(this);
+		ResourceService.getInstance(this.core).unloadGroup(ID);
+		EventService.getInstance(this.core).removeListener(this);
 	}
 
 	@Override
 	public void handleEvent(Event event) {
-		if (event.isOfType(CollisionEvent.TYPE)) {
+		if (event.isOfType(CollisionEvent.TYPE_ID)) {
 			handleCollisionEvent((CollisionEvent) event);
 		}
 	}
 
 	private void handleCollisionEvent(CollisionEvent event) {
-		EntityManager entMngr = EntityManager.getInstance(this.core);
+		EntityService entMngr = EntityService.getInstance(this.core);
 		ArrayList<Planetoid> planetoids = new ArrayList<Planetoid>();
-		ArrayList<String> group = event.getCollidingPlanetoids();
-		for (String name : group) {
+		ArrayList<CogaenId> group = event.getCollidingPlanetoids();
+		for (CogaenId id : group) {
 			Entity entity;
-			if ((entity = entMngr.getEntity(name)) != null && 
+			if ((entity = entMngr.getEntity(id)) != null && 
 					entity instanceof Planetoid) {
 				planetoids.add((Planetoid) entity);
 			} else {
@@ -129,7 +125,7 @@ public class PlayState implements GameState, EventListener {
 			for (Planetoid planetoid : planetoids) {
 				pos = pos.add(planetoid.getPos());
 				vel = vel.add(planetoid.getVel());
-				if (!entMngr.hasEntity(planetoid.getName())) {
+				if (!entMngr.hasEntity(planetoid.getId())) {
 					LoggingService.getInstance(this.core).logError("Planetoid", "cannot remove");
 				}
 			}
@@ -138,7 +134,7 @@ public class PlayState implements GameState, EventListener {
 		}
 		
 		for (Planetoid planetoid : planetoids) {
-			entMngr.removeEntity(planetoid);
+			entMngr.removeEntity(planetoid.getId());
 		}
 		Planetoid newPlanetoid = new Planetoid(this.core, pos, mass);
 		newPlanetoid.setVel(vel);

@@ -1,11 +1,11 @@
 package cogaenfix;
 
 import org.cogaen.event.Event;
-import org.cogaen.event.EventType;
+import org.cogaen.name.CogaenId;
 
 public class MouseReleasedEvent extends Event {
 
-	public static final EventType TYPE = new EventType("MouseReleased");
+	public static final CogaenId TYPE_ID = new CogaenId("MouseReleased");
 	
 	private int button;
 	private int posX;
@@ -28,10 +28,10 @@ public class MouseReleasedEvent extends Event {
 	public int getButton() {
 		return this.button;
 	}
-	
+
 	@Override
-	public EventType getType() {
-		return TYPE;
+	public CogaenId getTypeId() {
+		return TYPE_ID;
 	}
 
 }
