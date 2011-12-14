@@ -2,6 +2,14 @@ universa-3000
 
 universa-3000 is a gravitation simulation.
 
+Install:
+1. Download cogaen3-java:
+	link: http://code.google.com/p/cogaen3-java/
+	compatible with rev f221
+2. add Cogaen Projects to build path:
+	in eclipse: import and add Projects to build path.
+4. have fun!
+
 Controls:
 drag mouse to drag view
 'n' and 'm' keys to zoom
